@@ -89,6 +89,23 @@ function SiteMapApp() {
   }, [isAnalyzing]);
 
   const pageByUrl = new Map(analysis.pages.map((page) => [page.url, page]));
+  const visiblePages = analysis.pages
+    .filter((page) => {
+      const query = search.trim().toLowerCase();
+      const matchesSearch = !query || page.title.toLowerCase().includes(query) || page.url.toLowerCase().includes(query);
+      const matchesStatus = statusFilter === "all" ||
+        statusFilter === "200" && page.status === 200 ||
+        statusFilter === "error" && page.status !== null && page.status >= 400 ||
+        statusFilter === "unreachable" && page.status === null;
+      return matchesSearch && matchesStatus;
+    })
+    .slice()
+    .sort((left, right) => {
+      const a: string | number = sortField === "title" ? left.title.toLowerCase() : sortField === "url" ? left.url.toLowerCase() : sortField === "status" ? left.status ?? 0 : sortField === "internalLinks" ? left.internalLinks.length : left.externalLinks.length;
+      const b: string | number = sortField === "title" ? right.title.toLowerCase() : sortField === "url" ? right.url.toLowerCase() : sortField === "status" ? right.status ?? 0 : sortField === "internalLinks" ? right.internalLinks.length : right.externalLinks.length;
+      const compared = typeof a === "number" && typeof b === "number" ? a - b : String(a).localeCompare(String(b));
+      return sortDirection === "asc" ? compared : -compared;
+    });
 
   async function handleAnalyze(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -406,23 +423,6 @@ function SiteMapApp() {
     else { setSortField(field); setSortDirection(field === "url" ? "asc" : "desc"); }
   }
 
-  const visiblePages = analysis.pages
-    .filter((page) => {
-      const query = search.trim().toLowerCase();
-      const matchesSearch = !query || page.title.toLowerCase().includes(query) || page.url.toLowerCase().includes(query);
-      const matchesStatus = statusFilter === "all" ||
-        statusFilter === "200" && page.status === 200 ||
-        statusFilter === "error" && page.status !== null && page.status >= 400 ||
-        statusFilter === "unreachable" && page.status === null;
-      return matchesSearch && matchesStatus;
-    })
-    .slice()
-    .sort((left, right) => {
-      const a: string | number = sortField === "title" ? left.title.toLowerCase() : sortField === "url" ? left.url.toLowerCase() : sortField === "status" ? left.status ?? 0 : sortField === "internalLinks" ? left.internalLinks.length : left.externalLinks.length;
-      const b: string | number = sortField === "title" ? right.title.toLowerCase() : sortField === "url" ? right.url.toLowerCase() : sortField === "status" ? right.status ?? 0 : sortField === "internalLinks" ? right.internalLinks.length : right.externalLinks.length;
-      const compared = typeof a === "number" && typeof b === "number" ? a - b : String(a).localeCompare(String(b));
-      return sortDirection === "asc" ? compared : -compared;
-    });
 }
 
 function LoadingPanel({ activeStep }: { activeStep: number }) {
