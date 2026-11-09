@@ -115,7 +115,7 @@ export function createDemoAnalysis(): SiteAnalysis {
     item.externalLinks.map((url) => ({ url, foundOn: item.url })),
   );
   const brokenLinks = pages
-    .filter((item) => item.status >= 400)
+    .filter((item) => item.status !== null && item.status >= 400)
     .map((item) => ({
       url: item.url,
       status: item.status,
