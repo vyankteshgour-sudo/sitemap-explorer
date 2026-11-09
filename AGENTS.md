@@ -28,3 +28,6 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Application architecture
+- Keep sitemap crawling in a bounded TanStack server function, with shared URL safety/normalization helpers and browser-safe demo data; this keeps fetches off the visitor's browser and secrets out of the client.
