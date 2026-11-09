@@ -155,7 +155,7 @@ function SiteMapApp() {
     link.href = objectUrl;
     link.download = `${new URL(analysis.website).hostname}-sitemap.json`;
     link.click();
-    URL.revokeObjectURL(objectUrl);
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
   }
 
   return (
