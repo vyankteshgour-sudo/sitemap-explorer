@@ -63,13 +63,26 @@ export function normalizeCrawlSettings(settings?: Partial<CrawlSettings>): Crawl
 
   return {
     maxDepth: boundedInteger(settings?.maxDepth, DEFAULT_CRAWL_SETTINGS.maxDepth, 1, 6),
-    maxPages: boundedInteger(settings?.maxPages, DEFAULT_CRAWL_SETTINGS.maxPages, 1, MAX_PAGE_LIMIT),
-    timeoutSeconds: boundedInteger(settings?.timeoutSeconds, DEFAULT_CRAWL_SETTINGS.timeoutSeconds, 1, 10),
+    maxPages: boundedInteger(
+      settings?.maxPages,
+      DEFAULT_CRAWL_SETTINGS.maxPages,
+      1,
+      MAX_PAGE_LIMIT,
+    ),
+    timeoutSeconds: boundedInteger(
+      settings?.timeoutSeconds,
+      DEFAULT_CRAWL_SETTINGS.timeoutSeconds,
+      1,
+      10,
+    ),
   };
 }
 
 function isPrivateOrReservedHost(hostname: string): boolean {
-  const host = hostname.toLowerCase().replace(/^\[|\]$/g, "").replace(/\.$/, "");
+  const host = hostname
+    .toLowerCase()
+    .replace(/^\[|\]$/g, "")
+    .replace(/\.$/, "");
   if (
     host === "localhost" ||
     host.endsWith(".localhost") ||
@@ -81,7 +94,8 @@ function isPrivateOrReservedHost(hostname: string): boolean {
     host === "home.arpa" ||
     host.endsWith(".home.arpa") ||
     host.endsWith(".onion")
-  ) return true;
+  )
+    return true;
 
   if (host.includes(":")) {
     return (
@@ -104,7 +118,10 @@ function isPrivateOrReservedHost(hostname: string): boolean {
   if (octets.some((part) => part < 0 || part > 255)) return true;
   const [first = 0, second = 0] = octets;
   return (
-    first === 0 || first === 10 || first === 127 || first >= 224 ||
+    first === 0 ||
+    first === 10 ||
+    first === 127 ||
+    first >= 224 ||
     (first === 100 && second >= 64 && second <= 127) ||
     (first === 169 && second === 254) ||
     (first === 172 && second >= 16 && second <= 31) ||
@@ -126,7 +143,8 @@ export function normalizeUrl(value: string, base?: string): string | null {
       url.username ||
       url.password ||
       isPrivateOrReservedHost(url.hostname)
-    ) return null;
+    )
+      return null;
 
     url.hash = "";
     if (url.pathname !== "/") url.pathname = url.pathname.replace(/\/+$/, "");

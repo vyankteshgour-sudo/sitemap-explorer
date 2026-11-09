@@ -52,7 +52,9 @@ function decodeHtml(value: string): string {
     .replace(/&lt;/gi, "<")
     .replace(/&gt;/gi, ">")
     .replace(/&#(\d+);/g, (_match, number: string) => String.fromCodePoint(Number(number)))
-    .replace(/&#x([\da-f]+);/gi, (_match, number: string) => String.fromCodePoint(parseInt(number, 16)));
+    .replace(/&#x([\da-f]+);/gi, (_match, number: string) =>
+      String.fromCodePoint(parseInt(number, 16)),
+    );
 }
 
 function extractLinks(html: string, baseUrl: string, siteHost: string, canonicalHost: string) {
@@ -68,19 +70,23 @@ function extractLinks(html: string, baseUrl: string, siteHost: string, canonical
       const canonical = new URL(normalized);
       canonical.hostname = canonicalHost;
       internal.add(canonical.toString());
-    }
-    else external.add(normalized);
+    } else external.add(normalized);
   }
   return { internalLinks: [...internal], externalLinks: [...external] };
 }
 
 function extractTitle(html: string, fallbackUrl: string): string {
   const match = html.match(/<title\b[^>]*>([\s\S]*?)<\/title\s*>/i);
-  const title = match?.[1]?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  const title = match?.[1]
+    ?.replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
   if (title) return decodeHtml(title).slice(0, 300);
   try {
     const pathname = new URL(fallbackUrl).pathname;
-    return pathname === "/" ? "Homepage" : decodeURIComponent(pathname.split("/").filter(Boolean).at(-1) ?? "Page");
+    return pathname === "/"
+      ? "Homepage"
+      : decodeURIComponent(pathname.split("/").filter(Boolean).at(-1) ?? "Page");
   } catch {
     return "Untitled page";
   }
@@ -116,7 +122,12 @@ function statusLabel(status: number): string {
   return `HTTP ${status}`;
 }
 
-async function fetchPage(url: string, timeoutMs: number, siteHost: string, deadlineSignal: AbortSignal): Promise<FetchResult> {
+async function fetchPage(
+  url: string,
+  timeoutMs: number,
+  siteHost: string,
+  deadlineSignal: AbortSignal,
+): Promise<FetchResult> {
   const requestController = new AbortController();
   const timeout = setTimeout(() => requestController.abort(), timeoutMs);
   const signal = AbortSignal.any([requestController.signal, deadlineSignal]);
@@ -126,7 +137,12 @@ async function fetchPage(url: string, timeoutMs: number, siteHost: string, deadl
     for (let redirects = 0; redirects <= MAX_REDIRECTS; redirects += 1) {
       const safeUrl = normalizeUrl(currentUrl);
       if (!safeUrl || !hostIsWithinSite(safeUrl, siteHost)) {
-        return { status: null, statusText: "Redirect left the analyzed website", html: "", finalUrl: currentUrl };
+        return {
+          status: null,
+          statusText: "Redirect left the analyzed website",
+          html: "",
+          finalUrl: currentUrl,
+        };
       }
       const response = await fetch(safeUrl, {
         redirect: "manual",
@@ -136,11 +152,21 @@ async function fetchPage(url: string, timeoutMs: number, siteHost: string, deadl
       if ([301, 302, 303, 307, 308].includes(response.status)) {
         const location = response.headers.get("location");
         if (!location || redirects === MAX_REDIRECTS) {
-          return { status: response.status, statusText: "Too many redirects", html: "", finalUrl: safeUrl };
+          return {
+            status: response.status,
+            statusText: "Too many redirects",
+            html: "",
+            finalUrl: safeUrl,
+          };
         }
         const next = normalizeUrl(location, safeUrl);
         if (!next || !hostIsWithinSite(next, siteHost)) {
-          return { status: null, statusText: "Redirect left the analyzed website", html: "", finalUrl: safeUrl };
+          return {
+            status: null,
+            statusText: "Redirect left the analyzed website",
+            html: "",
+            finalUrl: safeUrl,
+          };
         }
         currentUrl = next;
         continue;
@@ -160,7 +186,11 @@ async function fetchPage(url: string, timeoutMs: number, siteHost: string, deadl
     const timedOut = requestController.signal.aborted;
     return {
       status: null,
-      statusText: stoppedByDeadline ? "Not checked — analysis time limit reached" : timedOut ? "Timed out" : "Could not be reached",
+      statusText: stoppedByDeadline
+        ? "Not checked — analysis time limit reached"
+        : timedOut
+          ? "Timed out"
+          : "Could not be reached",
       html: "",
       finalUrl: currentUrl,
       stoppedByDeadline,
@@ -187,10 +217,17 @@ async function crawlWebsite(url: string, settings: CrawlSettings): Promise<SiteA
 
   while (queue.length > 0 && pages.size < settings.maxPages && !deadlineController.signal.aborted) {
     const batch = queue.splice(0, MAX_CONCURRENCY);
-    const results = await Promise.all(batch.map(async (entry) => ({
-      entry,
-      response: await fetchPage(entry.url, settings.timeoutSeconds * 1000, siteHost, deadlineController.signal),
-    })));
+    const results = await Promise.all(
+      batch.map(async (entry) => ({
+        entry,
+        response: await fetchPage(
+          entry.url,
+          settings.timeoutSeconds * 1000,
+          siteHost,
+          deadlineController.signal,
+        ),
+      })),
+    );
 
     for (const { entry, response } of results) {
       const pageLinks = response.html
@@ -216,7 +253,8 @@ async function crawlWebsite(url: string, settings: CrawlSettings): Promise<SiteA
 
       if (entry.depth < settings.maxDepth) {
         for (const internalUrl of pageLinks.internalLinks) {
-          if (pages.has(internalUrl) || queue.some((pending) => pending.url === internalUrl)) continue;
+          if (pages.has(internalUrl) || queue.some((pending) => pending.url === internalUrl))
+            continue;
           if (pages.size + queue.length >= settings.maxPages) break;
           queue.push({ url: internalUrl, depth: entry.depth + 1, parentUrl: entry.url });
         }
@@ -230,7 +268,11 @@ async function crawlWebsite(url: string, settings: CrawlSettings): Promise<SiteA
 
   const pageList = [...pages.values()];
   const brokenLinks: BrokenLink[] = pageList
-    .filter((page) => page.status !== null && page.status >= 400 || page.status === null && !page.statusText.startsWith("Not checked"))
+    .filter(
+      (page) =>
+        (page.status !== null && page.status >= 400) ||
+        (page.status === null && !page.statusText.startsWith("Not checked")),
+    )
     .map((page) => ({
       url: page.url,
       status: page.status,
@@ -252,7 +294,9 @@ async function crawlWebsite(url: string, settings: CrawlSettings): Promise<SiteA
     brokenLinks,
     externalLinks,
     ...(reachedTimeLimit || queue.length > 0
-      ? { notice: `Partial crawl: ${pageList.length} pages were checked before the crawl limit was reached.` }
+      ? {
+          notice: `Partial crawl: ${pageList.length} pages were checked before the crawl limit was reached.`,
+        }
       : {}),
   };
 }
@@ -261,7 +305,8 @@ export const analyzeWebsite = createServerFn({ method: "POST" })
   .inputValidator((input) => crawlInputSchema.parse(input))
   .handler(async ({ data }) => {
     const normalizedUrl = normalizeUrl(data.url);
-    if (!normalizedUrl) throw new Error("Enter a valid public website URL using http:// or https://.");
+    if (!normalizedUrl)
+      throw new Error("Enter a valid public website URL using http:// or https://.");
     const settings = normalizeCrawlSettings(data.settings);
     return crawlWebsite(normalizedUrl, settings);
   });

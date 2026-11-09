@@ -82,10 +82,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "BashCraft SiteMap" },
-      { name: "description", content: "Discover website pages and inspect link health with BashCraft SiteMap." },
+      {
+        name: "description",
+        content: "Discover website pages and inspect link health with BashCraft SiteMap.",
+      },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "BashCraft SiteMap" },
-      { property: "og:description", content: "Discover website pages and inspect link health with BashCraft SiteMap." },
+      {
+        property: "og:description",
+        content: "Discover website pages and inspect link health with BashCraft SiteMap.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },

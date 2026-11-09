@@ -25,7 +25,7 @@ describe("sitemap URL and crawl settings", () => {
     expect(normalizeUrl("http://127.0.0.1/admin")).toBeNull();
     expect(normalizeUrl("http://10.0.0.5/")).toBeNull();
     expect(normalizeUrl("http://169.254.169.254/latest/meta-data/")).toBeNull();
-    expect(normalizeUrl("http://localhost:8080/" )).toBeNull();
+    expect(normalizeUrl("http://localhost:8080/")).toBeNull();
     expect(normalizeUrl("file:///etc/passwd")).toBeNull();
     expect(normalizeUrl("https://example.com/")).toBe("https://example.com/");
   });
