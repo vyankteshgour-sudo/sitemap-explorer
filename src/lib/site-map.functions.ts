@@ -55,7 +55,7 @@ function decodeHtml(value: string): string {
     .replace(/&#x([\da-f]+);/gi, (_match, number: string) => String.fromCodePoint(parseInt(number, 16)));
 }
 
-function extractLinks(html: string, baseUrl: string, siteHost: string) {
+function extractLinks(html: string, baseUrl: string, siteHost: string, canonicalHost: string) {
   const internal = new Set<string>();
   const external = new Set<string>();
   const anchorPattern = /<a\b[^>]*\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>"']+))/gi;
@@ -64,7 +64,11 @@ function extractLinks(html: string, baseUrl: string, siteHost: string) {
     if (!href || href.startsWith("#")) continue;
     const normalized = normalizeUrl(href, baseUrl);
     if (!normalized) continue;
-    if (hostIsWithinSite(normalized, siteHost)) internal.add(normalized);
+    if (hostIsWithinSite(normalized, siteHost)) {
+      const canonical = new URL(normalized);
+      canonical.hostname = canonicalHost;
+      internal.add(canonical.toString());
+    }
     else external.add(normalized);
   }
   return { internalLinks: [...internal], externalLinks: [...external] };
@@ -170,7 +174,8 @@ async function crawlWebsite(url: string, settings: CrawlSettings): Promise<SiteA
   const start = normalizeUrl(url);
   if (!start) throw new Error("Enter a valid public website URL using http:// or https://.");
   const parsedStart = new URL(start);
-  const siteHost = parsedStart.hostname.toLowerCase().replace(/^www\./, "");
+  const canonicalHost = parsedStart.hostname.toLowerCase();
+  const siteHost = canonicalHost.replace(/^www\./, "");
   const pages = new Map<string, SitemapPage>();
   const externalLinks: ExternalLink[] = [];
   const queue: QueueEntry[] = [{ url: start, depth: 0, parentUrl: null }];
@@ -189,7 +194,7 @@ async function crawlWebsite(url: string, settings: CrawlSettings): Promise<SiteA
 
     for (const { entry, response } of results) {
       const pageLinks = response.html
-        ? extractLinks(response.html, response.finalUrl, siteHost)
+        ? extractLinks(response.html, response.finalUrl, siteHost, canonicalHost)
         : { internalLinks: [], externalLinks: [] };
       const record: SitemapPage = {
         ...entry,

@@ -347,7 +347,7 @@ function SiteMapApp() {
                   <table className="w-full min-w-[700px] border-collapse text-left text-xs">
                     <thead>
                       <tr className="border-b border-border text-muted-foreground">
-                        <th scope="col" className="w-[86px] px-3 py-3 font-medium">Status</th>
+                        <SortHeader label="Status" field="status" sortField={sortField} direction={sortDirection} onSort={changeSort} />
                         <SortHeader label="Page title" field="title" sortField={sortField} direction={sortDirection} onSort={changeSort} />
                         <SortHeader label="URL" field="url" sortField={sortField} direction={sortDirection} onSort={changeSort} />
                         <SortHeader label="Internal" field="internalLinks" sortField={sortField} direction={sortDirection} onSort={changeSort} numeric />
