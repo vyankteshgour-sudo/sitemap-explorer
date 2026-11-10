@@ -46,8 +46,16 @@ Continue developing this project in the [Lovable editor](https://lovable.dev/pro
 ## Development
 
 Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Known Limitations
 
+- The crawler discovers links available in the HTML returned by the server. Links generated only after JavaScript executes may not be discovered.
+- Some websites may block automated requests, rate-limit crawlers, or require authentication.
+- Crawls are limited by maximum depth, maximum pages, per-request timeout, and an overall analysis time limit to prevent excessive resource usage.
+- Redirects are followed only up to a fixed limit.
+- HTML link extraction is designed for standard anchor links and may not handle every unusual HTML structure or dynamically generated navigation pattern.
+- External links are listed but are not crawled as part of the website analysis.
 ```sh
+ 
 git clone <this-repository-url>
 cd <repository-name>
 npm i
