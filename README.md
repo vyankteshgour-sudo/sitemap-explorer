@@ -257,8 +257,8 @@ You need:
 ## Clone the Repository
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-cd <YOUR_REPOSITORY_NAME>
+git clone https://github.com/vyankteshgour-sudo/sitemap-explorer/edit/main/README.md
+cd sitemap-explorer
 ```
 
 ## Install Dependencies
@@ -280,7 +280,7 @@ Open the local development URL displayed in your terminal.
 # Usage
 
 1. Open the application.
-2. Enter a publicly accessible website URL.
+2. https://sitemap-scout-studio.lovable.app
 3. Optionally configure:
    - Maximum crawl depth
    - Maximum pages
