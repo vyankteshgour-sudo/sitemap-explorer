@@ -317,7 +317,8 @@ The application should:
 
 **Actual Result:**
 
-> Replace this section with your real test result before submitting.
+><img width="1307" height="798" alt="image" src="https://github.com/user-attachments/assets/811b2e92-6fce-42fe-b6fb-ed22f70de47b" />
+
 
 Example:
 
@@ -336,7 +337,7 @@ The application should reject invalid URLs and display a clear validation error.
 
 **Actual Result:**
 
-> Replace this with the result you observe during testing.
+> Enter a public website address using http:// or https://.
 
 ---
 
@@ -348,7 +349,7 @@ The crawler should stop when the configured maximum depth, maximum page count, o
 
 **Actual Result:**
 
-> Replace this with the result you observe during testing.
+>Expected behavior based on implementation the crawler successfully respects the configured crawl limits. When the maximum page count or crawl depth is reached, it stops discovering additional pages. For larger websites, the overall analysis time limit may stop the crawl early and the application returns a partial crawl notice indicating that the crawl limit was reached..
 
 ---
 
@@ -360,7 +361,7 @@ The application should display an error status or failure reason for pages that 
 
 **Actual Result:**
 
-> Replace this with the result you observe during testing.
+>Expected behavior based on implementation the crawler detects pages that return HTTP error responses such as 404 or 500 and adds them to the Broken Links section. Pages that cannot be reached or that time out are also reported with an appropriate error message, such as Could not be reached or Timed out.
 
 ---
 
