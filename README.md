@@ -280,7 +280,7 @@ Open the local development URL displayed in your terminal.
 # Usage
 
 1. Open the application.
-2. https://sitemap-scout-studio.lovable.app
+2. https://sitemap-explorer-five.vercel.app
 3. Optionally configure:
    - Maximum crawl depth
    - Maximum pages
